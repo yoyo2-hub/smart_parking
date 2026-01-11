@@ -6,14 +6,14 @@ from ultralytics import YOLO
 from shapely.geometry import Polygon
 
 # --- CONFIGURATION ---
-VIDEO_PATH = "video_night_ultra_realistic.mp4"
+VIDEO_PATH = "video.mp4"
 PICKLE_FILE = "parking_slots.pkl"
-OUTPUT_VIDEO = "parking_dynamic_stabilized-final2.mp4"
+OUTPUT_VIDEO = "parking_dynamic_stabilized-final.mp4"
 MODEL_PATH = "yolo11s.pt"
 
 FRAME_SKIP = 3       
 BUFFER_SIZE = 12     
-OCCUPANCY_THRESHOLD = 45  
+OCCUPANCY_THRESHOLD = 65 
 
 # --- INITIALIZATION ---
 if not os.path.exists(PICKLE_FILE):
@@ -110,7 +110,6 @@ while cap.isOpened():
         if len(buffer) > BUFFER_SIZE: buffer.pop(0)
         smooth_occ = sum(buffer) / len(buffer)
 
-        # 5. REFINED VISUAL DISPLAY
         is_occupied = smooth_occ > OCCUPANCY_THRESHOLD
         color = (0, 0, 255) if is_occupied else (0, 255, 0) 
         if is_occupied: occupied_count += 1
@@ -119,15 +118,13 @@ while cap.isOpened():
         center_y = int(np.mean([p[1] for p in current_slot]))
         
         # Bubble Scale 11
-        cv2.circle(annotated_frame, (center_x, center_y), 13, (255, 255, 255), -1) 
         cv2.circle(annotated_frame, (center_x, center_y), 11, color, -1)
         
-        # Text Scale 0.6
+        # Text Scale 0.5
         text = f"{int(smooth_occ)}%"
         cv2.putText(annotated_frame, text, (center_x + 18, center_y + 8), 
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2, cv2.LINE_AA)
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2, cv2.LINE_AA)
 
-    # --- 6. NEW LARGE HIGH-VISIBILITY DASHBOARD ---
     available_spots = len(parking_slots) - occupied_count
     
     # Define box dimensions
