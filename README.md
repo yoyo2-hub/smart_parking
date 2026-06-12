@@ -82,21 +82,4 @@ Real-time dashboard showing total, occupied, and available spots.
 | Poor low-light detection | Run `nuit.py` or lower `conf` threshold |
 | False positives | Increase `OCCUPANCY_THRESHOLD` to 55-60 |
 
-## Future Enhancements
-
-- Multi-camera support
-- Historical trends
-- Mobile app integration
-- Reserved space handling
-
-## License
-
-MIT License
-
-## Author
-
-**yoyo2-hub** - [GitHub](https://github.com/yoyo2-hub)
-
----
-
 **Made with ❤️ for smarter parking management**
