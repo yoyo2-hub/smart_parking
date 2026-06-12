@@ -1,229 +1,101 @@
 # smart_parking 🅿️
 
-An intelligent parking lot monitoring system that uses computer vision and deep learning to detect and track available parking spots in real-time.
-
-## Overview
-
-**Smart Parking** is an AI-powered solution that analyzes video footage of parking lots to:
-- 🚗 Detect vehicles using YOLOv11 object detection
-- 📍 Track predefined parking spaces
-- 📊 Monitor real-time occupancy status
-- 🌙 Handle both day and night conditions with advanced image processing
+An AI-powered parking lot monitoring system using YOLOv11 and computer vision to detect and track available parking spots in real-time.
 
 ## Features
 
-### 1. **Night Mode Enhancement** (`nuit.py`)
-Transforms daylight or challenging footage into realistic night-time video with:
-- Advanced gamma correction and shadow enhancement
-- Blue temperature shift for authentic night appearance
-- Adaptive saturation processing
-- Light bloom effect simulation (street lights, headlights)
-- Film grain addition for realistic camera noise
-- Cinematic color grading
-- Vignette effect
+- **🚗 Real-time Detection**: YOLOv11-based vehicle detection
+- **📍 Space Tracking**: Monitor predefined parking slots with live occupancy status
+- **🌙 Night Mode**: Advanced image processing for low-light conditions
+- **📊 Live Dashboard**: Real-time statistics (total, occupied, available spots)
+- **🎯 Occupancy Analysis**: Calculates percentage occupancy per slot
 
-**Available profiles:**
-- `realistic`: Balanced night vision effect
-- `deep_night`: Heavy night transformation
-- `twilight`: Dusk/twilight appearance
-- `security_cam`: Security camera aesthetic
+## Quick Start
 
-### 2. **Parking Slot Selection Tool** (`spot_selector.py`)
-Interactive GUI tool to define parking spaces:
-- **Left Click**: Add corner points (4 points per space)
-- **Right Click**: Delete last recorded slot
-- **'R' Key**: Reset current points
-- **'Q' Key**: Exit and save
-- Visualizes parking spaces as green polygons
-- Automatically saves to `parking_slots.pkl`
+### Installation
 
-### 3. **Real-time Parking Monitor** (`parking_monitor.py`)
-Main monitoring system featuring:
-- **AI Detection**: YOLOv11 object detection (cars, buses, trucks, motorcycles)
-- **Camera Stabilization**: Feature tracking for dynamic camera movement compensation
-- **Occupancy Analysis**: Calculates percentage occupancy per slot
-- **Temporal Smoothing**: 12-frame buffer for stable readings
-- **Live Dashboard**: Shows total, occupied, and available spots
-- **Visual Indicators**: 
-  - 🔴 Red circles = Occupied spaces
-  - 🟢 Green circles = Available spaces
-  - Occupancy percentage overlay on each spot
+```bash
+git clone https://github.com/yoyo2-hub/smart_parking.git
+cd smart_parking
+pip install opencv-python ultralytics numpy scipy shapely
+```
+
+### Usage
+
+**1. Define parking spaces:**
+```bash
+python spot_selector.py
+```
+- Left-click to add corner points (4 per space)
+- Right-click to delete, 'R' to reset, 'Q' to save
+
+**2. (Optional) Enhance night footage:**
+```bash
+python nuit.py
+```
+
+**3. Run monitoring:**
+```bash
+python parking_monitor.py
+```
 
 ## Project Structure
 
 ```
 smart_parking/
-├── README.md                           # This file
-├── nuit.py                            # Night mode video transformer
-├── spot_selector.py                   # Interactive parking slot selector
-├── parking_monitor.py                 # Main monitoring system
-├── parking_slots.pkl                  # Saved parking space definitions
-├── video.mp4                          # Input video footage
-└── video_night_ultra_realistic.mp4   # Night-transformed output
+├── nuit.py                    # Night mode transformer
+├── spot_selector.py           # Interactive slot selector
+├── parking_monitor.py         # Main monitoring system
+├── parking_slots.pkl          # Saved spaces
+└── video.mp4                  # Input video
 ```
-
-## Installation
-
-### Requirements
-- Python 3.8+
-- OpenCV (`cv2`)
-- YOLOv11 (ultralytics)
-- NumPy
-- SciPy
-- Shapely
-
-### Setup
-
-```bash
-# Clone the repository
-git clone https://github.com/yoyo2-hub/smart_parking.git
-cd smart_parking
-
-# Install dependencies
-pip install opencv-python ultralytics numpy scipy shapely
-
-# Download YOLOv11 model (automatic on first run)
-# Or manually: yolo detect download model=yolo11s.pt
-```
-
-## Usage
-
-### Step 1: Define Parking Spaces
-
-```bash
-python spot_selector.py
-```
-- Load a reference frame or image of your parking lot
-- Click the 4 corners of each parking space
-- Right-click to delete mistakes
-- Press 'Q' to finish and save
-
-### Step 2 (Optional): Enhance Night Footage
-
-If your video needs night mode processing:
-
-```bash
-python nuit.py
-```
-- Edit `NIGHT_PROFILE` in the script to choose effect intensity
-- Outputs `video_night_ultra_realistic.mp4`
-
-### Step 3: Run Monitoring System
-
-```bash
-python parking_monitor.py
-```
-- Monitors video and displays real-time occupancy
-- Shows dashboard with parking statistics
-- Press 'Q' to quit
-- Outputs annotated video: `parking_dynamic_stabilized-final2.mp4`
 
 ## Configuration
 
-### `parking_monitor.py` Parameters
-```python
-VIDEO_PATH = "video_night_ultra_realistic.mp4"  # Input video
-PICKLE_FILE = "parking_slots.pkl"               # Saved spaces
-OUTPUT_VIDEO = "parking_dynamic_stabilized-final2.mp4"
-MODEL_PATH = "yolo11s.pt"                      # YOLOv11 model
-FRAME_SKIP = 3                                  # Process every Nth frame
-BUFFER_SIZE = 12                                # Smoothing buffer
-OCCUPANCY_THRESHOLD = 45                        # Detection sensitivity (%)
-```
+Edit parameters in `parking_monitor.py`:
 
-### `nuit.py` Profiles
-Adjust parameters in the `PROFILES` dictionary:
-- `brightness`: -85 to -45 (lower = darker)
-- `contrast`: 0.5 to 0.9
-- `gamma`: 0.5 to 0.75
-- `noise`: 0 to 8 (film grain intensity)
-- `bloom_intensity`: 1.2 to 2.0
+```python
+VIDEO_PATH = "video.mp4"
+FRAME_SKIP = 3                 # Process every Nth frame
+BUFFER_SIZE = 12               # Smoothing buffer
+OCCUPANCY_THRESHOLD = 45       # Detection sensitivity (%)
+```
 
 ## How It Works
 
-### Detection Pipeline
-1. **Frame Capture**: Read video frame
-2. **Camera Tracking**: ORB feature detection for homography compensation
-3. **AI Detection**: YOLOv11 identifies vehicles
-4. **Spatial Analysis**: Check vehicle-slot intersection using Shapely geometry
-5. **Occupancy Smoothing**: Apply temporal buffer for stable readings
-6. **Visualization**: Render circles, text, and dashboard
-
-### Key Algorithms
-- **ORB Feature Tracking**: Compensates for camera movement
-- **Homography Transform**: Adapts parking slot coordinates to camera view
-- **Polygon Intersection**: Determines if vehicle overlaps with slot
-- **Moving Average**: Smooths occupancy readings over 12 frames
+1. **Frame Capture** → **Camera Tracking** (ORB features) → **Vehicle Detection** (YOLOv11)
+2. **Spatial Analysis** (Polygon intersection) → **Occupancy Smoothing** → **Visualization**
 
 ## Output
 
-### Dashboard Display
-```
-┌────────────────────────────────┐
-│   TOTAL SPOTS: 15              │
-│   OCCUPIED: 8                  │
-│   AVAILABLE: 7                 │
-└────────────────────────────────┘
-```
+Visual indicators:
+- 🟢 Green = Available
+- 🔴 Red = Occupied
 
-### Video Output
-Annotated video showing:
-- 🟢 Available parking spaces in green
-- 🔴 Occupied parking spaces in red
-- Occupancy percentage for each space
-- Real-time dashboard statistics
-
-## Model Details
-
-- **Detection Model**: YOLOv11 Small (yolo11s.pt)
-- **Classes Detected**: 
-  - Car (class 2)
-  - Bus (class 3)
-  - Truck (class 5)
-  - Motorcycle (class 7)
-- **Confidence Threshold**: 0.6
-- **FPS**: Variable (depends on video and frame skip rate)
-
-## Performance Tips
-
-1. **Adjust FRAME_SKIP** for speed/accuracy tradeoff
-2. **Reduce buffer size** for faster response (less stable)
-3. **Lower OCCUPANCY_THRESHOLD** for sensitive detection
-4. **Use realistic night profile** for balanced processing
+Real-time dashboard showing total, occupied, and available spots.
 
 ## Troubleshooting
 
-### Issue: Camera movement causes false readings
-**Solution**: Increase `BUFFER_SIZE` or ensure reference frame is stable
-
-### Issue: Poor detection in low light
-**Solution**: Run `nuit.py` first to enhance video, or adjust `conf=0.6` in parking_monitor.py
-
-### Issue: Too many false positives
-**Solution**: Increase `OCCUPANCY_THRESHOLD` to 55-60
+| Issue | Solution |
+|-------|----------|
+| Camera movement errors | Increase `BUFFER_SIZE` |
+| Poor low-light detection | Run `nuit.py` or lower `conf` threshold |
+| False positives | Increase `OCCUPANCY_THRESHOLD` to 55-60 |
 
 ## Future Enhancements
 
-- [ ] Multi-camera support
-- [ ] Historical occupancy trends
-- [ ] Mobile app integration
-- [ ] Predicted available spots
-- [ ] Reserved/handicap space handling
-- [ ] Weather condition detection
+- Multi-camera support
+- Historical trends
+- Mobile app integration
+- Reserved space handling
 
 ## License
 
-This project is open source and available under the MIT License.
+MIT License
 
 ## Author
 
-**yoyo2-hub** - [GitHub Profile](https://github.com/yoyo2-hub)
-
-## Acknowledgments
-
-- YOLOv11 by Ultralytics
-- OpenCV community
-- Shapely geometry library
+**yoyo2-hub** - [GitHub](https://github.com/yoyo2-hub)
 
 ---
 
